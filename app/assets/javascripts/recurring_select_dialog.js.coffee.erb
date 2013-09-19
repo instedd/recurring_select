@@ -188,7 +188,6 @@ window.RecurringSelectDialog =
       interval_input = section.find('.rs_yearly_interval')
       interval_input.val(@current_rule.hash.interval)
       interval_input.on "change keyup", @intervalChanged
-      $('<option>').val("").text(" --- ").appendTo(select_month_input);
       for mon in @months()
         $('<option>').val(mon.id).text(mon.name).appendTo(select_month_input);
         if $.inArray(mon.id, @current_rule.hash.validations.month_of_year) != -1
@@ -197,6 +196,7 @@ window.RecurringSelectDialog =
 
       @toggle_month_view_in_year()
       select_month_input.on "change", @monthOfYearChanged
+      @monthOfYearChanged()
 
     months: ->
       [
