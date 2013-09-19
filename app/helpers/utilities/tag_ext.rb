@@ -31,7 +31,6 @@ module RecurringSelectHelper
         select_content_tag(option_tags, @options, @html_options)
       end
     end
-
   else
     # === Rails 3
     class InstanceTag < ActionView::Helpers::InstanceTag

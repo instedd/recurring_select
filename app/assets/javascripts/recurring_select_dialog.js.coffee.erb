@@ -324,7 +324,10 @@ window.RecurringSelectDialog =
           @current_rule.hash.validations.month_of_year = [parseInt(month)]
 
       raw_days = event.data.section.find(".rs_calendar_day a.selected").map ->
-        res = if $(this).text() == "Last Day" then -1 else parseInt($(this).text())
+        res = if $(this).text() == "Last Day"
+          -1
+        else
+          parseInt($(this).text())
 
       @current_rule.hash.validations.day_of_week = {}
       @current_rule.hash.validations.day_of_month = raw_days.get()
@@ -438,6 +441,18 @@ window.RecurringSelectDialog =
                 <input type='text' name='rs_yearly_interval' class='rs_yearly_interval rs_interval' value='1' size='2' />
                 #{$.fn.recurring_select.texts["years"]}
               </p>
+                <p class='yearly_rule_type'>
+                  <span>Months of Year <input type='radio' class='yearly_rule_type_months' name='yearly_rule_type' value='true' /></span>
+                  <span>Days of Month <input type='radio' class='yearly_rule_type_days' name='yearly_rule_type' value='true' /></span>
+                </p>
+                <div class='rs_days_in_month'>
+                  <label for='rs_in_month'></label>
+                  <select id='rs_in_month' class='rs_in_month' name='rs_in_month'>
+                  </select>
+
+                  <div class='rs_calendar_day'></div>
+                </div>
+                <p class='rs_months_in_year'></p>
             </div>
             <p class='rs_summary'>
               <span></span>
