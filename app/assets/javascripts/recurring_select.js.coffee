@@ -106,7 +106,7 @@ methods =
     methods
 
 $.fn.recurring_select = (method) ->
-  m = if this.nodeName =='SELECT' then methods else link_methods
+  m = if this[0].nodeName =='SELECT' then methods else link_methods
 
   if method of m
     return m[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
