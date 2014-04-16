@@ -9,6 +9,41 @@ $ ->
   $(document).on "change", ".recurring_select", ->
     $(this).recurring_select('changed')
 
+  $(document).on "click", ".recurring_link", ->
+    $(this).recurring_select('set_initial_values')
+    $(this).recurring_select('changed')
+
+link_methods =
+  set_initial_values: ->
+    @data 'initial-value-hash', @next(':hidden').val()
+    @data 'initial-value-str', @text()
+
+  changed: ->
+    @data "recurring-link-active", true
+    # load current?
+    new RecurringSelectDialog(@)
+    @blur()
+
+  save: (new_rule) ->
+    new_json_val = JSON.stringify(new_rule.hash)
+
+    @text(new_rule.str)
+    @next(':hidden').val(new_json_val)
+
+    methods.set_initial_values.apply @
+    @.trigger "recurring_select:save"
+
+  current_rule: ->
+    str:  @data("initial-value-str")
+    hash: $.parseJSON(@data("initial-value-hash"))
+
+  cancel: ->
+    @data "recurring-select-active", false
+    @.trigger "recurring_select:cancel"
+
+  methods: ->
+    link_methods
+
 methods =
   set_initial_values: ->
     @data 'initial-value-hash', @val()
@@ -68,8 +103,10 @@ methods =
     methods
 
 $.fn.recurring_select = (method) ->
-  if method of methods
-    return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
+  m = if this.nodeName =='SELECT' then methods else link_methods
+
+  if method of m
+    return m[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
   else
     $.error( "Method #{method} does not exist on jQuery.recurring_select" );
 

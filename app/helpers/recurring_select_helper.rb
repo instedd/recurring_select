@@ -10,6 +10,10 @@ module RecurringSelectHelper
       def select_recurring(object, method, default_schedules = nil, options = {}, html_options = {})
         InstanceTag.new(object, method, self, options.delete(:object)).to_recurring_select_tag(default_schedules, options, html_options)
       end
+
+      def link_recurring(object, method, options = {}, html_options = {})
+        InstanceTag.new(object, method, self, options.delete(:object)).to_recurring_link_tag(options, html_options)
+      end
     end
   end
 
@@ -20,6 +24,14 @@ module RecurringSelectHelper
       end
 
       @template.select_recurring(@object_name, method, default_schedules, options.merge(:object => @object), html_options)
+    end
+
+    def link_recurring(method, options = {}, html_options = {})
+      if !@template.respond_to?(:link_recurring)
+        @template.class.send(:include, RecurringSelectHelper::FormHelper)
+      end
+
+      @template.link_recurring(@object_name, method, options.merge(:object => @object), html_options)
     end
   end
 
@@ -94,6 +106,12 @@ module RecurringSelectHelper
       html_options["class"] = (html_options["class"].to_s.split + ["recurring_select"]).join(" ")
       html_options
     end
+
+    def recurring_link_html_options(html_options)
+      html_options = html_options.stringify_keys
+      html_options["class"] = (html_options["class"].to_s.split + ["recurring_link"]).join(" ")
+      html_options
+    end
   end
 
   if Rails::VERSION::STRING.to_f >= 4.0
@@ -134,6 +152,25 @@ module RecurringSelectHelper
           options, value
         )
         content_tag("select", options, html_options)
+      end
+
+      def to_recurring_link_tag(options, html_options)
+        html_options = recurring_link_html_options(html_options)
+        add_default_name_and_id(html_options)
+        html_options['id'] += '_link'
+        html_options.delete 'name'
+
+        value = value(object)
+
+        blank_option_label = options[:blank_label] || I18n.t("recurring_select.not_recurring")
+        html_options.merge! :href => 'javascript:'
+
+        hidden_field_options = { :type => 'hidden', :value => value.to_json }
+        add_default_name_and_id(hidden_field_options)
+        [
+          content_tag("a", value || blank_option_label, html_options),
+          content_tag("input", nil, hidden_field_options)
+        ].join("").html_safe
       end
     end
   end
