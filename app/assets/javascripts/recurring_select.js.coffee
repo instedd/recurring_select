@@ -20,10 +20,7 @@ link_methods =
 
   changed: ->
     @data "recurring-link-active", true
-    new RecurringSelectDialog(@, {
-      allow_blank: @data('allow-blank')
-      blank_label: @data('blank-label')
-    })
+    new RecurringSelectDialog(@, @data('recurring-options'))
     @blur()
 
   save: (new_rule) ->

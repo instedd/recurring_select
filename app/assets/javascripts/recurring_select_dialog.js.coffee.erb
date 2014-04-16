@@ -1,29 +1,55 @@
 window.RecurringSelectDialog =
   class RecurringSelectDialog
     constructor: (@recurring_selector, options) ->
-      @options = $.extend {}, {allow_blank: false, blank_label: 'None'}, options
+      @options = $.extend {}, {allow_blank: false, blank_label: 'None', collapsible: false}, options
       @current_rule = @recurring_selector.recurring_select('current_rule')
       @initDialogBox()
       if not @current_rule.hash? or not @current_rule.hash.rule_type?
         @freqChanged()
       else
-        setTimeout @positionDialogVert, 10 # allow initial render
+        setTimeout @positionDialog, 10 # allow initial render
 
     initDialogBox: ->
-      $(".rs_dialog_holder").remove()
+      $(".rs_holder").remove()
 
       open_in = $("body")
       open_in = $(".ui-page-active") if $(".ui-page-active").length
       open_in.append @template()
-      @outer_holder = $(".rs_dialog_holder")
+      @outer_holder = $(".rs_holder")
       @inner_holder = @outer_holder.find ".rs_dialog"
       @content = @outer_holder.find ".rs_dialog_content"
-      @positionDialogVert(true)
+      @positionDialog(true)
       @mainEventInit()
       @freqInit()
       @summaryInit()
       @freq_select.focus()
       @outer_holder.trigger "recurring_select:dialog_opened"
+
+    positionDialog: (initial_positioning) =>
+      if @options.collapsible
+        @positionDialogNearControl(initial_positioning)
+      else
+        @positionDialogVert(initial_positioning)
+
+    positionDialogNearControl: =>
+      @outer_holder.css {
+        width: $(document).width(),
+        height: $(document).height()
+      }
+
+      # dialog_height = @content.outerHeight()
+      # if dialog_height < 80
+      #   dialog_height = 80
+
+      offset = @recurring_selector.offset()
+
+      new_style_hash =
+        "position": "absolute"
+        "top" : (offset.top + @recurring_selector.height() + 10) + "px"
+        "left" : offset.left + "px"
+        # "min-height" : dialog_height+"px"
+
+      @inner_holder.css new_style_hash
 
     positionDialogVert: (initial_positioning) =>
       window_height = $(window).height()
@@ -56,7 +82,7 @@ window.RecurringSelectDialog =
       @recurring_selector.recurring_select('cancel')
 
     outerCancel: (event) =>
-      if $(event.target).hasClass("rs_dialog_holder")
+      if $(event.target).hasClass("rs_holder")
         @cancel()
 
     save: =>
@@ -154,6 +180,15 @@ window.RecurringSelectDialog =
 # ========================= render methods ===============================
 
     summaryUpdate: (new_string) =>
+      # collapsible should save updated rule as soon as it is changed
+      if @options.collapsible
+        old_hash = @current_rule.hash
+        # null hash corresponds to None recurrence
+        if @current_rule.hash == null
+          @current_rule.hash = {rule_type: "None"}
+        @recurring_selector.recurring_select('save', @current_rule)
+        @current_rule.hash = old_hash
+      #
       @summary.width @content.width()
       if @current_rule.hash? && @current_rule.str?
         @summary.removeClass "fetching"
@@ -255,7 +290,7 @@ window.RecurringSelectDialog =
           @current_rule.str = $.fn.recurring_select.texts["daily"]
           @initDailyOptions()
       @summaryUpdate()
-      @positionDialogVert()
+      @positionDialog()
 
     intervalChanged: (event) =>
       @current_rule.str = null
@@ -308,7 +343,7 @@ window.RecurringSelectDialog =
 
     template: () ->
       str = "
-      <div class='rs_dialog_holder'>
+      <div class='rs_holder " + (if @options.collapsible then 'rs_collapsible_holder' else 'rs_dialog_holder') + "'>
         <div class='rs_dialog'>
           <div class='rs_dialog_content'>
             <h1>#{$.fn.recurring_select.texts["repeat"]} <a href='#' title='#{$.fn.recurring_select.texts["cancel"]}' Alt='#{$.fn.recurring_select.texts["cancel"]}'></a> </h1>

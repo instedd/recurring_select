@@ -165,8 +165,11 @@ module RecurringSelectHelper
         blank_label = options[:blank_label] || I18n.t("recurring_select.none")
         html_options.merge! :href => 'javascript:',
           :data => {
-            :blank_label => blank_label,
-            :allow_blank => options[:allow_blank] || false,
+            :recurring_options => {
+              :blank_label => blank_label,
+              :allow_blank => options[:allow_blank] || false,
+              :collapsible => options[:collapsible].nil? ? false : options[:collapsible]
+            }
           }
 
 
