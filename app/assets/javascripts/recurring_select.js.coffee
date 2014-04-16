@@ -15,16 +15,19 @@ $ ->
 
 link_methods =
   set_initial_values: ->
-    @data 'initial-value-hash', @next(':hidden').val()
+    @data 'initial-value-hash', @next(':hidden').val() || { rule_type : 'None' }
     @data 'initial-value-str', @text()
 
   changed: ->
     @data "recurring-link-active", true
-    # load current?
-    new RecurringSelectDialog(@)
+    new RecurringSelectDialog(@, {
+      allow_blank: @data('allow-blank')
+      blank_label: @data('blank-label')
+    })
     @blur()
 
   save: (new_rule) ->
+    new_rule.hash = null if new_rule.hash.rule_type == 'None'
     new_json_val = JSON.stringify(new_rule.hash)
 
     @text(new_rule.str)

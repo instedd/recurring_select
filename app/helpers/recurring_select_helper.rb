@@ -162,13 +162,18 @@ module RecurringSelectHelper
 
         value = value(object)
 
-        blank_option_label = options[:blank_label] || I18n.t("recurring_select.not_recurring")
-        html_options.merge! :href => 'javascript:'
+        blank_label = options[:blank_label] || I18n.t("recurring_select.none")
+        html_options.merge! :href => 'javascript:',
+          :data => {
+            :blank_label => blank_label,
+            :allow_blank => options[:allow_blank] || false,
+          }
+
 
         hidden_field_options = { :type => 'hidden', :value => value.to_json }
         add_default_name_and_id(hidden_field_options)
         [
-          content_tag("a", value || blank_option_label, html_options),
+          content_tag("a", value || blank_label, html_options),
           content_tag("input", nil, hidden_field_options)
         ].join("").html_safe
       end

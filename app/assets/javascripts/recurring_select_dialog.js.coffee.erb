@@ -1,6 +1,7 @@
 window.RecurringSelectDialog =
   class RecurringSelectDialog
-    constructor: (@recurring_selector) ->
+    constructor: (@recurring_selector, options) ->
+      @options = $.extend {}, {allow_blank: false, blank_label: 'None'}, options
       @current_rule = @recurring_selector.recurring_select('current_rule')
       @initDialogBox()
       if not @current_rule.hash? or not @current_rule.hash.rule_type?
@@ -76,17 +77,25 @@ window.RecurringSelectDialog =
       @freq_select = @outer_holder.find ".rs_frequency"
       if @current_rule.hash? && (rule_type = @current_rule.hash.rule_type)?
         if rule_type.search(/Weekly/) != -1
-          @freq_select.prop('selectedIndex', 1)
+          @freq_select.val('Weekly')
           @initWeeklyOptions()
         else if rule_type.search(/Monthly/) != -1
-          @freq_select.prop('selectedIndex', 2)
+          @freq_select.val('Monthly')
           @initMonthlyOptions()
         else if rule_type.search(/Yearly/) != -1
-          @freq_select.prop('selectedIndex', 3)
+          @freq_select.val('Yearly')
           @initYearlyOptions()
+        else if rule_type.search(/None/) != -1
+          @freq_select.val('None')
+          @initNoneOptions()
         else
+          @freq_select.val('Daily')
           @initDailyOptions()
       @freq_select.on "change", @freqChanged
+
+    initNoneOptions: ->
+      section = @content.find('.none_options')
+      section.show()
 
     initDailyOptions: ->
       section = @content.find('.daily_options')
@@ -225,6 +234,10 @@ window.RecurringSelectDialog =
       @content.find(".freq_option_section").hide();
       @content.find("input[type=radio], input[type=checkbox]").prop("checked", false)
       switch @freq_select.val()
+        when "None"
+          @current_rule.hash.rule_type = "None"
+          @current_rule.str = @options.blank_label
+          @initNoneOptions()
         when "Weekly"
           @current_rule.hash.rule_type = "IceCube::WeeklyRule"
           @current_rule.str = $.fn.recurring_select.texts["weekly"]
@@ -301,13 +314,23 @@ window.RecurringSelectDialog =
             <h1>#{$.fn.recurring_select.texts["repeat"]} <a href='#' title='#{$.fn.recurring_select.texts["cancel"]}' Alt='#{$.fn.recurring_select.texts["cancel"]}'></a> </h1>
             <p>
               <label for='rs_frequency'>#{$.fn.recurring_select.texts["frequency"]}:</label>
-              <select id='rs_frequency' class='rs_frequency' name='rs_frequency'>
-                <option value='Daily'>#{$.fn.recurring_select.texts["daily"]}</option>
+              <select id='rs_frequency' class='rs_frequency' name='rs_frequency'>"
+
+      if @options.allow_blank
+        str +=  "<option value='None'>#{@options.blank_label}</option>"
+
+      str +=    "<option value='Daily'>#{$.fn.recurring_select.texts["daily"]}</option>
                 <option value='Weekly'>#{$.fn.recurring_select.texts["weekly"]}</option>
                 <option value='Monthly'>#{$.fn.recurring_select.texts["monthly"]}</option>
                 <option value='Yearly'>#{$.fn.recurring_select.texts["yearly"]}</option>
               </select>
             </p>
+
+            <div class='none_options freq_option_section'>
+              <p>
+                Choose recurring option.
+              </p>
+            </div>
 
             <div class='daily_options freq_option_section'>
               <p>
