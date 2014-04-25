@@ -1,4 +1,5 @@
 //= require recurring_select_dialog
+//= require recurring_timepicker_dialog
 //= require_self
 
 $ = jQuery
@@ -12,6 +13,33 @@ $ ->
   $(document).on "click", ".recurring_link", ->
     $(this).recurring_select('set_initial_values')
     $(this).recurring_select('changed')
+
+  $(document).on "click", ".recurring_timepicker", ->
+    $(this).recurring_timepicker('set_initial_values')
+    $(this).recurring_timepicker('changed')
+
+  $(document).on 'recurring_select:save', (e) ->
+    select = $(e.target)
+    select.recurring_select('set_initial_values')
+    rule_hash = select.recurring_select('current_rule').hash
+    recurring_start_time = select.next().next('.rs_recurring_start_time')
+    if rule_hash != null
+      recurring_start_time.show()
+    else
+      recurring_start_time.hide()
+
+timepicker_methods =
+  set_initial_values: ->
+    @data 'initial-value', @next(':hidden').val() || '12:00'
+
+  changed: ->
+    @data "recurring-link-active", true
+    new RecurringTimepickerDialog(@)
+    @blur()
+
+  save: (new_value) ->
+    @next(':hidden').val(new_value)
+    @text(new_value)
 
 link_methods =
   set_initial_values: ->
@@ -109,6 +137,12 @@ $.fn.recurring_select = (method) ->
     return m[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
   else
     $.error( "Method #{method} does not exist on jQuery.recurring_select" );
+
+$.fn.recurring_timepicker = (method) ->
+  if method of timepicker_methods
+    return timepicker_methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
+  else
+    $.error( "Method #{method} does not exist on jQuery.recurring_timepicker" );
 
 $.fn.recurring_select.texts = {
   repeat: "Repeat"

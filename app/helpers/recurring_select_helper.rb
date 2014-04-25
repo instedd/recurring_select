@@ -14,6 +14,24 @@ module RecurringSelectHelper
       def link_recurring(object, method, options = {}, html_options = {})
         InstanceTag.new(object, method, self, options.delete(:object)).to_recurring_link_tag(options, html_options)
       end
+
+      def timepicker(object, method, options = {}, html_options = {})
+        InstanceTag.new(object, method, self, options.delete(:object)).to_timepicker_tag(options, html_options)
+      end
+
+      def recurring_with_time(object, method, options = {}, html_options = {})
+        style = ""
+        if options[:object].send("#{method}_rule".to_sym) == nil
+          style = "style='display: none;'"
+        end
+
+        [
+          link_recurring(object, "#{method}_rule".to_sym, options.reverse_merge({allow_blank: true, collapsible: true}), html_options),
+          "<span class='rs_recurring_start_time' #{style}> at ",
+          timepicker(object, "#{method}_start_time".to_sym, options, html_options),
+          "</span>"
+        ].join('').html_safe
+      end
     end
   end
 
@@ -32,6 +50,22 @@ module RecurringSelectHelper
       end
 
       @template.link_recurring(@object_name, method, options.merge(:object => @object), html_options)
+    end
+
+    def timepicker(method, options = {}, html_options = {})
+      if !@template.respond_to?(:timepicker)
+        @template.class.send(:include, RecurringSelectHelper::FormHelper)
+      end
+
+      @template.timepicker(@object_name, method, options.merge(:object => @object), html_options)
+    end
+
+    def recurring_with_time(method, options = {}, html_options = {})
+      if !@template.respond_to?(:recurring_with_time)
+        @template.class.send(:include, RecurringSelectHelper::FormHelper)
+      end
+
+      @template.recurring_with_time(@object_name, method, options.merge(:object => @object), html_options)
     end
   end
 
@@ -112,6 +146,13 @@ module RecurringSelectHelper
       html_options["class"] = (html_options["class"].to_s.split + ["recurring_link"]).join(" ")
       html_options
     end
+
+    def recurring_timepicker_html_options(html_options)
+      html_options = html_options.stringify_keys
+      html_options["class"] = (html_options["class"].to_s.split + ["recurring_timepicker"]).join(" ")
+      html_options
+    end
+
   end
 
   if Rails::VERSION::STRING.to_f >= 4.0
@@ -174,6 +215,24 @@ module RecurringSelectHelper
 
 
         hidden_field_options = { :type => 'hidden', :value => value.to_json }
+        add_default_name_and_id(hidden_field_options)
+        [
+          content_tag("a", value || blank_label, html_options),
+          content_tag("input", nil, hidden_field_options)
+        ].join("").html_safe
+      end
+
+      def to_timepicker_tag(options, html_options)
+        html_options = recurring_timepicker_html_options(html_options)
+        add_default_name_and_id(html_options)
+        html_options['id'] += '_link'
+        html_options.delete 'name'
+
+        value = value(object).strftime("%H:%M")
+
+        html_options.merge! :href => 'javascript:'
+
+        hidden_field_options = { :type => 'hidden', :value => value }
         add_default_name_and_id(hidden_field_options)
         [
           content_tag("a", value || blank_label, html_options),

@@ -113,3 +113,73 @@ select {
 
   }
 }
+
+
+[class^="rs-icon-"], [class*=" rs-icon-"] {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  line-height: 14px;
+  vertical-align: text-top;
+  background-image: url(<%=asset_path "recurring_select/icons.png"%>);
+  background-position: 14px 14px;
+  background-repeat: no-repeat;
+}
+
+.rs-icon-up {
+  background-position: -5px -6px;
+}
+
+.rs-icon-down {
+  background-position: -29px -6px;
+}
+
+.rs_timepicker {
+
+  .rs_dialog {
+    min-width:106px;
+  }
+
+  table {
+    width: 100%;
+    margin: 0;
+  }
+  table td {
+    text-align: center;
+    height: 30px;
+    margin: 0;
+    padding: 2px;
+  }
+  table td:not(.separator) {
+    min-width: 30px;
+  }
+  table td span {
+    width: 100%;
+  }
+  table td a {
+    border: 1px transparent solid;
+    width: 100%;
+    display: inline-block;
+    margin: 0;
+    padding: 8px 0;
+    outline: 0;
+    color: #333;
+  }
+  table td a:hover {
+    text-decoration: none;
+    background-color: #eee;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    border-color: #ddd;
+  }
+  table td a i {
+    margin-top: 2px;
+  }
+  table td input {
+    width: 19px;
+    margin: 0;
+    text-align: center;
+  }
+}
