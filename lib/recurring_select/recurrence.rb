@@ -54,6 +54,13 @@ module RecurringSelect
 
         define_method "#{attribute}_start_time=" do |value|
           schedule = self.send(attribute)
+          if value.is_a?(String)
+            if value.blank? || value == 'null'
+              value = nil
+            else
+              value = Time.parse(value)
+            end
+          end
           schedule.start_time = value
           self.send "#{attribute}=", schedule
         end
