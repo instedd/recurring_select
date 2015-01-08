@@ -84,7 +84,7 @@ module RecurringSelectHelper
           options_array << separator
           options_array << [I18n.t("recurring_select.change_schedule"), "custom"]
         else
-          options_array << blank_option
+          options_array << blank_option if options[:allow_blank]
           options_array << [I18n.t("recurring_select.set_schedule"), "custom"]
         end
       else

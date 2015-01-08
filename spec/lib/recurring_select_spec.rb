@@ -26,23 +26,35 @@ describe RecurringSelect do
   describe "#filter_params" do
     it "Monthly with day_of_week" do
       RecurringSelect.filter_params({
-        :validations=>{"day_of_week"=>{"wednesday"=>["1", "3"]}},
-        :rule_type=>"IceCube::MonthlyRule",
-        :interval=>1
-      }).should == {
-        :validations=>{:day_of_week =>{:wednesday =>[1, 3]}},
-        :rule_type=>"IceCube::MonthlyRule",
-        :interval=>1
+                                        :validations => {"day_of_week" => {"wednesday" => ["1", "3"]}},
+                                        :rule_type => "IceCube::MonthlyRule",
+                                        :interval => 1
+                                    }).should == {
+          :validations => {:day_of_week => {:wednesday => [1, 3]}},
+          :rule_type => "IceCube::MonthlyRule",
+          :interval => 1
       }
 
       RecurringSelect.filter_params({
-        :validations=>{"day_of_week"=>{"2"=>["1", "3"]}},
-        :rule_type=>"IceCube::MonthlyRule",
-        :interval=>1
-      }).should == {
-        :validations=>{:day_of_week =>{2 =>[1, 3]}},
-        :rule_type=>"IceCube::MonthlyRule",
-        :interval=>1
+                                        :validations => {"day_of_week" => {"2" => ["1", "3"]}},
+                                        :rule_type => "IceCube::MonthlyRule",
+                                        :interval => 1
+                                    }).should == {
+          :validations => {:day_of_week => {2 => [1, 3]}},
+          :rule_type => "IceCube::MonthlyRule",
+          :interval => 1
+      }
+    end
+
+    it "Yearly with months and days" do
+      RecurringSelect.filter_params({
+                                        :validations => {"month_of_year" => ["1", "3"], "day_of_month" => ["10", "11", "12"]},
+                                        :rule_type => "IceCube::YearlyRule",
+                                        :interval => 1
+                                    }).should == {
+          :validations => {:month_of_year =>[1, 3], day_of_month: [10, 11, 12]},
+          :rule_type => "IceCube::YearlyRule",
+          :interval => 1
       }
     end
   end
